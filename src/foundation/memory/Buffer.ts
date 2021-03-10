@@ -169,57 +169,30 @@ export default class Buffer extends RnObject {
     componentType: ComponentTypeEnum,
     length4BytesUnit = 100
   ) {
-    let ret: TypedArray;
     const typedArray = ComponentType.toTypedArray(componentType)!;
     if (typedArray === undefined) {
       console.warn('componentType is Invalid');
     }
+
+    const TensorClass = CompositionType.toTensor(compositionType)!;
+    const offset = this.__byteOffset + offset4bytesUnit * 4;
+    const componentN = compositionType.getNumberOfComponents();
     if (CompositionType.isArray(compositionType)) {
-      ret = new typedArray(
-        this.__raw,
-        this.__byteOffset + offset4bytesUnit * 4,
-        length4BytesUnit
-      );
-    } else {
-      const componentN = compositionType.getNumberOfComponents();
       const len = length4BytesUnit / componentN;
       const array = new Array(len);
-      const dataView = new DataView(
-        this.__raw,
-        this.__byteOffset + offset4bytesUnit
-      );
-      switch (compositionType) {
-        case CompositionType.Vec2:
-          {
-            for (let i = 0; i < len; i++) {
-              array[i] = new Vector2(
-                dataView.getFloat32(len * componentN, true)
-              );
-            }
-          }
-          break;
-        case CompositionType.Vec3:
-          {
-            for (let i = 0; i < len; i++) {
-              array[i] = new Vector3(dataView.getFloat32(len * 3, true));
-            }
-          }
-          break;
-        case CompositionType.Vec4:
-          {
-            for (let i = 0; i < len; i++) {
-              array[i] = new Vector4(dataView.getFloat32(len * 4, true));
-            }
-          }
-          break;
-        case CompositionType.Mat3: {
-          for (let i = 0; i < len; i++) {
-            array[i] = new Vector4(dataView.getFloat32(len * 4, true));
-          }
-        }
+      for (let i = 0; i < len; i++) {
+        const float32Array = new Float32Array(
+          this.__raw,
+          offset + componentN * 4 * i,
+          componentN
+        );
+        array[i] = new TensorClass(float32Array as never);
       }
       return array;
+    } else {
+      const float32Array = new Float32Array(this.__raw, offset, componentN);
+      const tensor = new TensorClass(float32Array as never);
+      return tensor;
     }
-    return ret;
   }
 }
