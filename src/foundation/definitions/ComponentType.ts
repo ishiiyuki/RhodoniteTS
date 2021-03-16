@@ -240,7 +240,7 @@ export const ComponentType = Object.freeze({
   Short,
   UnsignedShort,
   Int,
-  UnsignedInt: UnsignedInt,
+  UnsignedInt,
   Float,
   Double,
   Bool,

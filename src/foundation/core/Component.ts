@@ -294,13 +294,12 @@ export default class Component extends RnObject {
       return;
     }
 
-    const array = Component.__componentsOfProcessStages.get(processStage)!;
+    const array = Component.__componentsOfProcessStages.get(processStage);
     if (array) {
       const method = (componentClass as any)['sort_' + processStage.methodName];
 
       if (method != null) {
-        let sids = [];
-        sids = method(renderPass);
+        const sids = method(renderPass);
         for (let i = 0; i < sids.length; i++) {
           array[i] = sids[i];
         }
